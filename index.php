@@ -1,23 +1,25 @@
 <?php
-$my_server="http://0xa.pl/wiktor"
-$tmp_dir="tmp" #directory with temporary files
-$plugins_dir="plugins" # dir with plugins XMLs
-$zips_dir="zips" # dir with plugins zips
+header("Content-type: text/plain");
+
+# it will work for  somenting like http://example.com/someadress/
+$my_server = "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+
+$tmp_dir="tmp"; #directory with temporary files
+$plugins_dir="plugins"; # dir with plugins XMLs
+$zips_dir="zips"; # dir with plugins zips
 
 require "SimpleXMLElementExtended.php";
-require "utils_functions.php";
-
+require "UtilFunctions.php";
 
 // Replace XXXXXX_XXXX with the name of the header you need in UPPERCASE (and with '-' replaced by '_')
 // $headerStringValue = $_SERVER['HTTP_XXXXXX_XXXX'];
-header("Content-type: text/plain");
-
 $event= $_SERVER['HTTP_X_GITHUB_EVENT'];
 if ($event!="release"){
-  exit
+  exit("only release!");
 }
-$body=file_get_contents('php://input')
-$data = json_decode($body,true)
+
+$body=file_get_contents('php://input');
+$data = json_decode($body,true);
 
 # create direcory for dowloaded data
 if (!is_dir($tmp_dir)) {
@@ -30,7 +32,6 @@ if (!is_dir($plugins_dir)) {
 if (!is_dir($zips_dir)) {
   mkdir($zips_dir);
 }
-
 
 $repo_name = $data["repository"]["name"];
 $repo_version = $data["release"]["tag_name"];
@@ -71,7 +72,7 @@ $metadata_file = file_get_contents("{$tmp_dir}/{$repo_name}-{$repo_version}/meta
 # we need new name without tailing repo_version
 rename("{$tmp_dir}/{$repo_name}-{$repo_version}","{$tmp_dir}/{$repo_name}");
 zippity("{$repo_name}.zip","{$tmp_dir}","{$repo_name}","{$zips_dir}");
-$dwn_url = "{$my_server}/{$zips_dir}/{$repo_name}.zip";
+$dwn_url = "{$my_server}{$zips_dir}/{$repo_name}.zip";
 $replaced_metadata = preg_replace('/\n\s+/',' ',$metadata_file);
 file_put_contents("{$tmp_dir}/metadatka.txt",$replaced_metadata);
 $metadata = parse_ini_file("{$tmp_dir}/metadatka.txt");
@@ -102,9 +103,12 @@ $combined_xml = simplexml_load_string('<?xml version="1.0" encoding="utf-8"?><pl
 
 foreach(glob("{$plugins_dir}/*") as $file){
   if(!is_dir($file)){
-    $xml_content = simplexml_load_file("{$plugins_dir}/{$file}");
+    $xml_content = simplexml_load_file("{$file}");
     sxml_append($combined_xml, $xml_content);
   }
 }
 
 file_put_contents("plugins.xml", $combined_xml->asXML());
+deleteDirectory($tmp_dir);
+echo "OK!"
+?>
