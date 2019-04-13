@@ -76,15 +76,17 @@ elseif ( $method=='POST' &&
     die('Could not extract the file');
   }
 
-  # lets get what is inside metadata.txt
-  $metadata_file = file_get_contents("{$tmp_dir}/{$repo_name}-{$repo_version}/metadata.txt");
+  # lets get metadata.txt
+  $metadata_file="{$tmp_dir}/{$repo_name}-{$repo_version}/metadata.txt";
+  $metadata = new ReadMetadata($metadata_file);
+  # print_r($metadata);
+
   # we need new name without tailing repo_version
   rename("{$tmp_dir}/{$repo_name}-{$repo_version}","{$tmp_dir}/{$repo_name}");
+  # add this to proper zip file
   zippity("{$repo_name}.zip","{$tmp_dir}","{$repo_name}","{$zips_dir}");
-  $dwn_url = "{$my_server}{$zips_dir}/{$repo_name}.zip";
-  $replaced_metadata = preg_replace('/\n\s+/',' ',$metadata_file);
-  file_put_contents("{$tmp_dir}/metadatka.txt",$replaced_metadata);
-  $metadata = parse_ini_file("{$tmp_dir}/metadatka.txt");
+
+  # create plugin id
   $id = hexdec(substr(md5("{$repo_name}"),0,3));
 
   $xml = new SimpleXMLElementExtended("<pyqgis_plugin></pyqgis_plugin>");
@@ -97,7 +99,7 @@ elseif ( $method=='POST' &&
   $xml->addChild("qgis_minimum_version",$metadata["qgisMinimumVersion"]);
   $xml->addChildWithCDATA("homepage",$metadata["homepage"]);
   $xml->addChildWithCDATA("file_name","{$repo_name}");
-  $xml->addChild("download_url",$dwn_url);
+  $xml->addChild("download_url","{$my_server}{$zips_dir}/{$repo_name}.zip");
   $xml->addChildWithCDATA("repository",$metadata["repository"]);
   $xml->addChildWithCDATA("tracker",$metadata["tracker"]);
   if($metadata["experimental"]){
