@@ -28,7 +28,7 @@ The plugins zip files will be downloaded from github. The plugin repository take
 Qgis which makes GET request recievs proper XML with plugin descriptions.
 The local repository stores zips and plugins xml descriptions
 
-Credits
---------
+Contributors 
+-------------
 
 Wiktor Żelazo, Maciej Kamiński
