@@ -17,7 +17,7 @@ If You would like to configure webhook secret it shall be provided to `$githubho
 The `index.php` should be properly placed and accesible via request URL (example `http://somwhere.example.com/someting/`).
 
 This URL should be provided to github webhooks `settings > webhooks > Add webhook`
-as well as to QGIS `manage plugins > Settings > Add`as plugin repository
+as well as to QGIS `manage plugins > Settings > Add`as plugin repository (You can add tailing `/plugins.xml` if you wish)
 You can provide URL to more than one webhook. In this case more than one plugin will be aviliable in repository
 
 How it works
