@@ -22,20 +22,21 @@ Class ReadMetadata extends ArrayObject {
     parent::__construct();
 
     $fn = fopen($file,"r");
-    $last_item="";
+    $prev_item="";
     while(! feof($fn))  {
       $result = fgets($fn); # we read line from file
-      preg_match('/((\w+)\s*=)?\s*(.*)/', $result, $output_array);
-      if ($output_array[2]=="") {
+      preg_match('/^(((\w+)\s*=\s*)|(\s*))(.+)$/', $result, $output_array);
+      if (sizeof($output_array)>0){
+        if ($output_array[3]=="") {
           # so the line does not contain "something = "
           # we append what we foud to last item
-          $this[$last_item]=$this[$last_item]."\n".$output_array[3];
-      } else {
+          $this[$prev_item]=$this[$prev_item]."\n".$output_array[5];
+        } else {
           # so the line contains "something = "
-          $this[$output_array[2]]=$output_array[3];
-          $last_item = $output_array[2];
+          $this[$output_array[3]]=$output_array[5];
+          $prev_item = $output_array[3];
+        }
       }
-      echo $result;
     }
     fclose($fn);
   }
